@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="00 source/00 common/favicon.png" rel="icon" >
+		<title>
+			FILM LOG | ARCHIVE
+		</title>
+
+		<!-- Style 영역 -->
+		<style>
+			@font-face 
+			{
+			    font-family: 'AsteroneDemo';
+			    src: url('00 source/00 font/Asterone DEMO.ttf') format('truetype');
+			    font-weight: normal;
+			    font-style: normal;
+			}
+
+			/* 기본 리셋 및 폰트 설정 */
+			* 
+			{
+			    margin: 0;
+			    padding: 0;
+			    box-sizing: border-box;
+			}
+
+			body 
+			{
+			    font-family: 'AsteroneDemo', Arial, sans-serif; 
+			    background-color: #fff;
+			    color: #000;
+			    min-height: 100vh;
+			    display: flex;
+			    flex-direction: column;
+			    overflow-x: hidden;
+			}
+
+			body.no-scroll, body.menu-is-open
+			{
+				overflow: hidden;
+			}
+
+			/* --- Header Style --- */
+
+			.main-header 
+			{
+			    display: flex;
+			    justify-content: space-between;
+			    align-items: center;
+			    padding: 20px 50px; 
+			    position: relative;
+			    z-index: 100;
+			}
+
+			.header-logo img 
+			{
+			    height: 50px;
+			    width: auto;
+			}
+
+			.main-nav .nav-list 
+			{
+			    display: flex;
+			    list-style: none;
+			    gap: 30px;
+			}
+
+			.main-nav a 
+			{
+			    text-decoration: none;
+			    color: #000;
+			    font-size: 14px;
+			    letter-spacing: 0.5px;
+			    transition: color 0.3s ease;
+			}
+
+			.main-nav a:hover
+			{
+				color: #FFDA03;
+				background-color: #2C2A29;
+				text-decoration: underline;
+			}
+
+			.menu-toggle-btn
+			{
+				display: none;
+			}
+
+			.mobile-menu-overlay
+			{
+				display: none;
+			}
+
+
+			/* --- Archive Page Layout Style --- */
+			
+			main 
+			{
+				flex: 1;
+				display: flex; 
+				max-width: 1400px;
+				width: 100%;
+				margin: 50px auto;
+				padding: 0 50px;
+			}
+			
+			/* ------------------- */
+			/* 사이드바 스타일 (Archive Category) */
+			/* ------------------- */
+			.sidebar 
+			{
+				width: 220px;
+				flex-shrink: 0; 
+			}
+			
+			.sidebar-title 
+			{
+				padding: 8px 15px;
+				background-color: #2C2A29;
+				color: #FFDA03;
+				font-size: 20px;
+				font-weight: 400;
+				margin-bottom: 20px;
+			}
+			
+			.sidebar-nav ul 
+			{
+				list-style: none;
+			}
+			
+			.sidebar-nav li a 
+			{
+				display: block;
+				text-decoration: none;
+				color: #000;
+				font-size: 14px;
+				font-weight: 700;
+				padding: 8px 15px;
+				margin-bottom: 4px;
+				transition: background-color 0.2s;
+				border-bottom: 1px solid #000;
+				font-family: Helvetica, Arial, sans-serif;
+				font-weight: 500; 
+			}
+
+			/* 서브 메뉴 호버 스타일 */
+			.sidebar-nav li a:hover:not(.active) 
+			{
+				background-color: #f0f0f0;
+				color: #000;
+				font-weight: 700;
+				text-decoration: underline;
+			}
+
+
+			/* ------------------- */
+			/* 메인 콘텐츠 스타일 (영화 목록) */
+			/* ------------------- */
+			.content-area 
+			{
+				flex-grow: 1;
+				padding-left: 20px;
+			}
+			
+			.main-heading 
+			{
+				font-size: 24px;
+				font-weight: 900;
+				margin-bottom: 10px;
+			}
+			
+			.description 
+			{
+				font-size: 14px;
+				line-height: 1.6;
+				color: #000;
+				margin-top: 10px;
+				margin-bottom: 50px;
+				font-family: Helvetica, Arial, sans-serif;
+				font-weight: 400; 
+			}
+			
+			/* 영화 그리드 레이아웃 */
+			.movie-grid 
+			{
+				display: grid;
+				grid-template-columns: repeat(4, 1fr); 
+				gap: 40px 30px;
+			}
+			
+			.movie-item 
+			{
+				text-align: left;
+				text-decoration: none;
+				color: inherit;
+				display: block;
+				border: 1px solid #000;
+			}
+			
+			.movie-poster-container 
+			{
+				width: 100%;
+				padding-bottom: 145%;
+				position: relative;
+				overflow: hidden;
+				margin-bottom: 10px;
+			}
+			
+			.movie-poster-container img 
+			{
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				transition: opacity 0.3s;
+			}
+
+			.movie-item:hover .movie-poster-container img 
+			{
+				opacity: 0.8;
+			}
+			
+			.movie-title 
+			{
+				font-size: 13px;
+				font-weight: bold;
+				line-height: 1.4;
+				padding-left: 10px;
+				padding-right: 10px;
+			}
+			
+			.movie-original-title
+			{
+				font-size: 13px;
+				padding-left: 10px;
+				color: #000;
+				line-height: 1.8;
+				font-family: Helvetica, Arial, sans-serif; 
+				font-weight: 400;
+			}
+
+			.movie-year 
+			{
+				font-size: 12px;
+				padding-left: 10px;
+				color: #000;
+				line-height: 1.8;
+				
+			}
+
+
+			/* --- Footer Style --- */
+
+			.main-footer 
+			{
+			    background-color: #2C2A29;
+			    color: #fff;
+			    padding: 40px 50px;
+			    font-family: Helvetica, Arial, sans-serif; 
+			}
+
+			.footer-content 
+			{
+			    display: flex;
+			    justify-content: space-between;
+			    align-items: flex-end; 
+			    max-width: 1200px;
+			    margin: 0 auto;
+			}
+
+			.footer-left 
+			{
+			    max-width: 300px;
+			}
+
+			.footer-logo-container 
+			{
+			    display: flex;
+			    flex-direction: row; 
+			    align-items: flex-end;
+			    margin-bottom: 15px;
+			}
+
+			.footer-logo-small 
+			{
+			    height: 40px; 
+			    width: auto;
+			    display: block;
+			    margin-right: 10px;
+			}
+
+			.footer-logo-full 
+			{
+			    height: 18px; 
+			    width: auto;
+			    display: block;
+			    margin-bottom: 6px; 
+			}
+
+			.footer-desc 
+			{
+			    font-family: Helvetica, Arial, sans-serif; 
+			    font-size: 12px;
+			    line-height: 1.5;
+			    margin-bottom: 15px;
+			    color: #ccc;
+			    font-weight: lighter;
+			    text-transform: uppercase;
+			    letter-spacing: 0.5px;
+			}
+			.footer-copy 
+			{
+			    font-family: Helvetica, Arial, sans-serif; 
+			    font-size: 10px;
+			    color: #aaa;
+			    font-weight: lighter;
+			}
+
+
+			/* ------------------- */
+			/* 모바일 반응형 설정 (Media Query) */
+			/* ------------------- */
+
+			@media (max-width: 1024px) 
+			{
+				.movie-grid 
+				{
+					grid-template-columns: repeat(3, 1fr);
+				}
+			}
+
+			@media (max-width: 768px) 
+			{
+				.main-header 
+				{
+					padding: 20px;
+					z-index: 200;
+				}
+
+				.main-nav {
+					display: none;
+				}
+				
+				body.menu-is-open .main-header .header-logo img,
+				body.menu-is-open .main-header .menu-toggle-btn 
+				{
+					display: none;
+				}
+
+				.menu-toggle-btn
+				{
+					display: block;
+					background: none;
+					border: none;
+					font-size: 30px;
+					cursor: pointer;
+					color: #000;
+					padding: 0;
+					line-height: 1;
+				}
+
+				.mobile-menu-overlay
+				{
+					display: flex;
+					position: fixed;
+					top: 0;
+					left: 0;
+					width: 100vw;
+					height: 100vh;
+					background-color: #2C2A29;
+					color: #fff;
+					z-index: 250; 
+					display: flex;
+					flex-direction: column;
+					padding: 20px;
+					transform: translateX(100%);
+					transition: transform 0.3s ease-in-out;
+				}
+
+				.mobile-menu-overlay.is-active
+				{
+					transform: translateX(0);
+					overflow-y: auto;
+				}
+				
+				.mobile-menu-overlay .close-btn
+				{
+					color: #fff;
+					font-size: 40px;
+					align-self: flex-end;
+					margin-bottom: 40px;
+					display: block;
+					position: sticky;
+					top: 10px;
+					z-index: 260;
+				}
+				
+				.mobile-menu-overlay ul
+				{
+					list-style: none;
+					text-align: center;
+					flex-grow: 1;
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					gap: 30px;
+					padding: 0;
+				}
+				
+				.mobile-menu-overlay a {
+					color: #fff;
+					text-decoration: none;
+					font-size: 28px;
+					font-weight: bold;
+					letter-spacing: 1px;
+					display: block;
+					padding: 10px 0;
+				}
+				
+				.main-header, .main-footer
+				{
+					padding: 20px 20px;
+				}
+
+				main 
+				{
+					flex-direction: column; 
+					padding: 20px;
+					margin: 20px auto;
+				}
+
+				.sidebar 
+				{
+					width: 100%;
+					padding-right: 0;
+					margin-bottom: 30px;
+				}
+				
+				.content-area 
+				{
+					padding-left: 0;
+					border-left: none;
+					padding-top: 30px;
+					border-top: 1px solid #ddd;
+				}
+
+				.movie-grid 
+				{
+					grid-template-columns: repeat(2, 1fr); 
+				}
+
+				.footer-logo-small 
+				{
+					height: 30px;
+					margin-right: 10px;
+				}
+
+				.footer-logo-full 
+				{
+					height: 12px;
+					margin-bottom: 4px;
+				}
+			}
+
+
+
+		</style>
+	</head>
+
+
+
+
+
+	<body>
+		<!-- Header 영역 -->
+		<header class="main-header">
+	        <div class="header-logo">
+	            <a href="index.html">
+	            	<img src="00 source/00 common/logo_b.png" alt="FILMLOG Logo">
+            	</a>
+	        </div>
+	        <nav class="main-nav">
+	            <ul class="nav-list">
+	                <li>
+	                	<a href="archive.html">ARCHIVE</a>
+	                </li>
+	                <li>
+	                	<a href="picks.html">PICKS</a>
+	                </li>
+	                <li>
+	                	<a href="moments.html">MOMENTS</a>
+	                </li>
+	                <li>
+	                	<a href="directors.html">DIRECTORS</a>
+	                </li>
+	                <li>
+	                	<a href="sound.html">SOUND</a>
+	                </li>
+	            </ul>
+	        </nav>
+
+	        <button id="hamburger-btn" class="menu-toggle-btn" aria-label="메뉴 열기">
+				&#9776; </button>
+
+    	</header>
+		
+    	<nav id="mobile-menu-overlay" class="mobile-menu-overlay">
+			<button id="close-btn" class="menu-toggle-btn close-btn" aria-label="메뉴 닫기">
+				&times; </button>
+			<ul>
+				<li>
+					<a href="index.html">HOME</a>
+				</li>
+				<li>
+					<a href="archive.html">ARCHIVE</a>
+				</li>
+				<li>
+					<a href="picks.html">PICKS</a>
+				</li>
+				<li>
+					<a href="moments.html">MOMENTS</a>
+				</li>
+				<li>
+					<a href="directors.html">DIRECTORS</a>
+				</li>
+				<li>
+					<a href="sound.html">SOUND</a>
+				</li>
+			</ul>
+		</nav>
+
+		
+		<main>
+			
+			<aside class="sidebar">
+				<a href="archive.html">
+					<h2 class="sidebar-title">ARCHIVE</h2>
+				</a>
+				<nav class="sidebar-nav">
+					<ul>
+						<li><a href="archive01.html">로맨스/드라마</a></li>
+						<li><a href="archive02.html">판타지</a></li>
+						<li><a href="archive03.html">스릴러/액션</a></li>
+						<li><a href="archive04.html">공포/SF</a></li>
+					</ul>
+				</nav>
+			</aside>
+			
+			<div class="content-area">
+				<h1 class="main-heading">나는 어떤 영화를 볼까? #스릴러/액션</h1>
+				<hr>
+				<p class="description">
+					많은 영화를 보고 듣지만, 취향이 아니라고 느껴 바로 꺼 버리곤 한다. 그런 선택의 기록을 통해 내가 어떤 영화를 좋아하는지 알아간다.
+				</p>
+				
+				<div class="movie-grid">
+	
+					<a href="#" class="movie-item">
+						<div class="movie-poster-container">
+							<img src="00 source/02 archive/archive09.png" alt="굿 윌 헌팅 Poster">
+						</div>
+						<p class="movie-title">GOOD WILL HUNTING</p>
+						<p class="movie-original-title">굿 윌 헌팅</p>
+						<p class="movie-year">1997</p>
+					</a>
+
+					<a href="#" class="movie-item">
+						<div class="movie-poster-container">
+							<img src="00 source/02 archive/archive10.png" alt="슬픔의 삼각형 Poster">
+						</div>
+						<p class="movie-title">TRIANGLE OF SADNESS</p>
+						<p class="movie-original-title">슬픔의 삼각형</p>
+						<p class="movie-year">2022</p>
+					</a>
+					
+					</div>
+			</div>
+			
+		</main>
+
+		<!-- Footer 영역 -->
+		<footer class="main-footer">
+		    <div class="footer-content">
+		        <div class="footer-left">
+		            <div class="footer-logo-container">
+		                <img src="00 source/00 common/logo_w.png" alt="FILMLOG Small Logo" class="footer-logo-small">
+		                <img src="00 source/00 common/logo_w2.png" alt="FILMLOG Full Logo" class="footer-logo-full">
+		            </div>
+		            
+		            <p class="footer-desc">
+		                A personal archive of the films I watched and the tastes I discovered.
+		            </p>
+		        </div>
+		        <p class="footer-copy">
+		            © 2025 FILMLOG All rights reserved.
+		        </p>
+		    </div>
+		</footer>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				const hamburgerBtn = document.getElementById('hamburger-btn');
+				const closeBtn = document.getElementById('close-btn');
+				const mobileMenu = document.getElementById('mobile-menu-overlay');
+				const body = document.body;
+
+				hamburgerBtn.addEventListener('click', function() {
+					mobileMenu.classList.add('is-active');
+					body.classList.add('no-scroll');
+					body.classList.add('menu-is-open'); 
+				});
+
+				closeBtn.addEventListener('click', function() {
+					mobileMenu.classList.remove('is-active');
+					body.classList.remove('no-scroll');
+					body.classList.remove('menu-is-open');
+				});
+				
+				mobileMenu.querySelectorAll('a').forEach(link => {
+					link.addEventListener('click', function() {
+						mobileMenu.classList.remove('is-active');
+						body.classList.remove('no-scroll');
+						body.classList.remove('menu-is-open');
+					});
+				});
+			});
+		</script>
+
+
+	</body>
+</html>

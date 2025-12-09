@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="00 source/00 common/favicon.png" rel="icon" >
+		<title>
+			FILM LOG | PICKS
+		</title>
+
+		<!-- Style 영역 -->
+		<style>
+			@font-face 
+			{
+			    font-family: 'AsteroneDemo';
+			    src: url('00 source/00 font/Asterone DEMO.ttf') format('truetype');
+			    font-weight: normal;
+			    font-style: normal;
+			}
+
+			* 
+			{
+			    margin: 0;
+			    padding: 0;
+			    box-sizing: border-box;
+			}
+
+			body 
+			{
+			    font-family: 'AsteroneDemo', Arial, sans-serif; 
+			    background-color: #fff;
+			    color: #000;
+			    min-height: 100vh;
+			    display: flex;
+			    flex-direction: column;
+			    overflow-x: hidden;
+			}
+
+			body.no-scroll, body.menu-is-open
+			{
+				overflow: hidden;
+			}
+
+			/* --- Header Style --- */
+
+			.main-header 
+			{
+			    display: flex;
+			    justify-content: space-between;
+			    align-items: center;
+			    padding: 20px 50px;
+			    position: relative;
+			    z-index: 100;
+			}
+
+			.header-logo img 
+			{
+			    height: 50px;
+			    width: auto;
+			}
+
+			.main-nav .nav-list 
+			{
+			    display: flex;
+			    list-style: none;
+			    gap: 30px;
+			}
+
+			.main-nav a 
+			{
+			    text-decoration: none;
+			    color: #000;
+			    font-size: 14px;
+			    letter-spacing: 0.5px;
+			    transition: color 0.3s ease;
+			}
+
+			.main-nav a:hover
+			{
+				color: #FFDA03;
+				background-color: #2C2A29;
+				text-decoration: underline;
+			}
+			
+			.menu-toggle-btn 
+			{
+				display: none;
+			}
+
+			.mobile-menu-overlay
+			{
+				display: none;
+			}
+
+
+			/* --- Archive Page Layout Style --- */
+			
+			main 
+			{
+				flex: 1;
+				display: flex;
+				max-width: 1400px;
+				width: 100%;
+				margin: 50px auto;
+				padding: 0 50px;
+			}
+			
+			/* ------------------- */
+			/* 사이드바 스타일 (Pick Category) */
+			/* ------------------- */
+			.sidebar 
+			{
+				width: 220px;
+				flex-shrink: 0; 
+			}
+			
+			.sidebar a
+			{
+				text-decoration: none;
+			}
+			
+			.sidebar-title 
+			{
+				padding: 8px 15px;
+				background-color: #2C2A29;
+				color: #FFDA03;
+				font-size: 20px;
+				font-weight: 400;
+				margin-bottom: 20px;
+			}
+			
+			.sidebar-nav ul 
+			{
+				list-style: none;
+			}
+			
+			.sidebar-nav li a 
+			{
+				display: block;
+				text-decoration: none;
+				color: #000;
+				font-size: 14px;
+				font-weight: 700;
+				padding: 8px 15px;
+				margin-bottom: 4px;
+				transition: background-color 0.2s;
+				border-bottom: 1px solid #000;
+				font-family: Helvetica, Arial, sans-serif;
+				font-weight: 500; 
+			}
+
+			.sidebar-nav li a:hover:not(.active) 
+			{
+				background-color: #f0f0f0;
+				color: #000;
+				font-weight: 700;
+				text-decoration: underline;
+			}
+
+
+			/* ------------------- */
+			/* 메인 콘텐츠 스타일 (영화 목록) */
+			/* ------------------- */
+			.content-area
+			{
+				flex-grow: 1;
+				padding-left: 20px;
+			}
+			
+			.main-heading
+			{
+				font-size: 24px;
+				font-weight: 900;
+				margin-bottom: 10px;
+			}
+			
+			.content-area hr {
+				border: 0;
+				border-top: 1px solid #000;
+				margin-bottom: 10px;
+			}
+			
+			.description
+			{
+				font-size: 14px;
+				line-height: 1.6;
+				color: #000;
+				margin-top: 10px;
+				margin-bottom: 50px;
+				font-family: Helvetica, Arial, sans-serif;
+				font-weight: 400;
+			}
+			
+			/* --- 영화 항목별 스타일 --- */
+			.movie-pick-item 
+			{
+				padding-top: 20px;
+				display: flex;
+				gap: 50px;
+				margin-bottom: 20px;
+			}
+
+			.poster-container 
+			{
+				width: 250px;
+				flex-shrink: 0;
+			}
+
+			.poster-container img 
+			{
+				width: 100%;
+				height: auto;
+				display: block;
+			}
+			
+			.detail-area 
+			{
+				flex-grow: 1;
+			}
+
+			.detail-area h2 
+			{
+				font-family: 'AsteroneDemo', Arial, sans-serif;
+				font-size: 20px;
+				margin-bottom: 5px;
+				display: inline-block;
+			}
+			
+			.detail-area .year 
+			{
+				font-size: 14px;
+				color: #888;
+				margin-left: 10px;
+			}
+
+			.meta-info 
+			{
+				width: 100%;
+				border-collapse: collapse;
+				margin-top: 20px;
+				margin-bottom: 25px;
+			}
+
+			.meta-info td 
+			{
+				font-family: Helvetica, Arial, sans-serif;
+				font-size: 14px;
+				padding: 8px 0;
+				vertical-align: top;
+			}
+			
+			.meta-info tr:not(:last-child) td 
+			{
+				border-bottom: 1px solid #ddd;
+			}
+			
+			.meta-info .label 
+			{
+				width: 80px;
+				font-weight: bold;
+				color: #000;
+			}
+
+			.meta-info .value 
+			{
+				color: #555;
+			}
+			
+			.story-heading 
+			{
+				font-family: Helvetica, Arial, sans-serif;
+				font-size: 14px;
+				font-weight: bold;
+				margin-bottom: 15px;
+				padding-top: 10px;
+			}
+			
+			.story-text 
+			{
+				font-family: Helvetica, Arial, sans-serif;
+				font-size: 14px;
+				line-height: 1.8;
+				color: #333;
+			}
+
+
+
+
+
+			/* --- Footer Style --- */
+
+			.main-footer 
+			{
+			    background-color: #2C2A29;
+			    color: #fff;
+			    padding: 40px 50px;
+			    font-family: Helvetica, Arial, sans-serif; 
+			}
+
+			.footer-content 
+			{
+			    display: flex;
+			    justify-content: space-between;
+			    align-items: flex-end; 
+			    max-width: 1200px;
+			    margin: 0 auto;
+			}
+
+			.footer-left 
+			{
+			    max-width: 300px;
+			}
+
+			.footer-logo-container 
+			{
+			    display: flex;
+			    flex-direction: row; 
+			    align-items: flex-end;
+			    margin-bottom: 15px;
+			}
+
+			.footer-logo-small 
+			{
+			    height: 40px; 
+			    width: auto;
+			    display: block;
+			    margin-right: 10px;
+			}
+
+			.footer-logo-full 
+			{
+			    height: 18px; 
+			    width: auto;
+			    display: block;
+			    margin-bottom: 6px; 
+			}
+
+			.footer-desc 
+			{
+			    font-family: Helvetica, Arial, sans-serif; 
+			    font-size: 12px;
+			    line-height: 1.5;
+			    margin-bottom: 15px;
+			    color: #ccc;
+			    font-weight: lighter;
+			    text-transform: uppercase;
+			    letter-spacing: 0.5px;
+			}
+			.footer-copy 
+			{
+			    font-family: Helvetica, Arial, sans-serif; 
+			    font-size: 10px;
+			    color: #aaa;
+			    font-weight: lighter;
+			}
+
+
+			/* ------------------- */
+			/* 모바일 반응형 설정 (Media Query) */
+			/* ------------------- */
+
+			@media (max-width: 1024px)
+			{
+				.movie-pick-item {
+					gap: 30px;
+				}
+			}
+
+			@media (max-width: 768px)
+			{
+				.main-header
+				{
+					padding: 20px 20px;
+					z-index: 200;
+				}
+
+				.main-nav {
+					display: none;
+				}
+				
+				body.menu-is-open .main-header .header-logo img,
+				body.menu-is-open .main-header .menu-toggle-btn
+				{
+					display: none;
+				}
+
+				.menu-toggle-btn
+				{
+					display: block;
+					background: none;
+					border: none;
+					font-size: 30px;
+					cursor: pointer;
+					color: #000;
+					padding: 0;
+					line-height: 1;
+				}
+
+				.mobile-menu-overlay
+				{
+					display: flex;
+					position: fixed;
+					top: 0;
+					left: 0;
+					width: 100vw;
+					height: 100vh;
+					background-color: #2C2A29;
+					color: #fff;
+					z-index: 250;
+					flex-direction: column;
+					padding: 20px;
+					transform: translateX(100%);
+					transition: transform 0.3s ease-in-out;
+				}
+
+				.mobile-menu-overlay.is-active
+				{
+					transform: translateX(0);
+					overflow-y: auto;
+				}
+				
+				.mobile-menu-overlay .close-btn
+				{
+					color: #fff;
+					font-size: 40px;
+					align-self: flex-end;
+					margin-bottom: 40px;
+					display: block;
+					position: sticky;
+					top: 10px;
+					z-index: 260;
+				}
+				
+				.mobile-menu-overlay ul
+				{
+					list-style: none;
+					text-align: center;
+					flex-grow: 1;
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					gap: 30px;
+					padding: 0;
+				}
+				
+				.mobile-menu-overlay a {
+					color: #fff;
+					text-decoration: none;
+					font-size: 28px;
+					font-weight: bold;
+					letter-spacing: 1px;
+					display: block;
+					padding: 10px 0;
+				}
+				
+				.main-header, .main-footer
+				{
+					padding: 20px 20px;
+				}
+				
+				main
+				{
+					flex-direction: column; 
+					padding: 20px;
+					margin: 20px auto;
+				}
+				
+				.sidebar
+				{
+					width: 100%;
+					padding-right: 0;
+					margin-bottom: 30px;
+				}
+				
+				.content-area
+				{
+					padding-left: 0;
+					border-left: none; 
+					padding-top: 30px;
+					border-top: 1px solid #ddd;
+				}
+
+				.movie-pick-item 
+				{
+					flex-direction: column;
+					gap: 20px;
+				}
+				
+				.poster-container 
+				{
+					width: 100%;
+					max-width: 300px;
+					margin: 0 auto;
+				}
+
+				.main-footer 
+				{
+					padding: 30px 20px;
+				}
+
+				.footer-content 
+				{
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 20px;
+				}
+
+				.footer-logo-container 
+				{
+					flex-direction: row;
+					align-items: flex-end;
+					margin-bottom: 40px;
+				}
+
+				.footer-logo-small 
+				{
+					height: 40px;
+					margin-right: 10px;
+				}
+
+				.footer-logo-full 
+				{
+					height: 12px;
+					margin-bottom: 10px;
+				}
+
+				.footer-copy 
+				{
+					align-self: flex-start;
+				}
+			}
+
+
+
+		</style>
+	</head>
+
+
+
+
+
+	<body>
+		<!-- Header 영역 -->
+		<header class="main-header">
+	        <div class="header-logo">
+	            <a href="index.html">
+	            	<img src="00 source/00 common/logo_b.png" alt="FILMLOG Logo">
+            	</a>
+	        </div>
+	        <nav class="main-nav">
+	            <ul class="nav-list">
+	                <li>
+	                	<a href="archive.html">ARCHIVE</a>
+	                </li>
+	                <li>
+	                	<a href="picks.html">PICKS</a>
+	                </li>
+	                <li>
+	                	<a href="moments.html">MOMENTS</a>
+	                </li>
+	                <li>
+	                	<a href="directors.html">DIRECTORS</a>
+	                </li>
+	                <li>
+	                	<a href="sound.html">SOUND</a>
+	                </li>
+	            </ul>
+	        </nav>
+
+	        <button id="hamburger-btn" class="menu-toggle-btn" aria-label="메뉴 열기"> &#9776; </button>
+
+    	</header>
+		
+    	<nav id="mobile-menu-overlay" class="mobile-menu-overlay"> <button id="close-btn" class="menu-toggle-btn close-btn" aria-label="메뉴 닫기">
+				&times; </button>
+			<ul>
+				<li>
+					<a href="index.html">HOME</a>
+				</li>
+				<li>
+					<a href="archive.html">ARCHIVE</a>
+				</li>
+				<li>
+					<a href="picks.html">PICKS</a>
+				</li>
+				<li>
+					<a href="moments.html">MOMENTS</a>
+				</li>
+				<li>
+					<a href="directors.html">DIRECTORS</a>
+				</li>
+				<li>
+					<a href="sound.html">SOUND</a>
+				</li>
+			</ul>
+		</nav>
+
+		
+		<main>
+			
+			<aside class="sidebar">
+				<a href="picks.html">
+					<h2 class="sidebar-title">PICKS</h2>
+				</a>
+				<nav class="sidebar-nav">
+					<ul>
+						<li><a href="#notebook">노트북</a></li>
+						<li><a href="#good">굿 윌 헌팅</a></li>
+						<li><a href="#dog">개들의 섬</a></li>
+						<li><a href="#triangle">슬픔의 삼각형</a></li>
+					</ul>
+				</nav>
+			</aside>
+			
+			<div class="content-area">
+				<h1 class="main-heading">나의 인생 영화</h1>
+				<hr>
+				<p class="description">
+					4개의 나의 인생 영화들을 소개합니다.
+				</p>
+				
+
+				<div id="notebook" class="movie-pick-item">
+					<div class="poster-container">
+						<img src="00 source/03 picks/picks01.png" alt="노트북 포스터">
+					</div>
+					<div class="detail-area">
+						<h2>THE NOTEBOOK <span class="year">2004</span></h2>
+						
+						<table class="meta-info">
+							<tr>
+								<td class="label">감독</td>
+								<td class="value">닉 카사베츠</td>
+							</tr>
+							<tr>
+								<td class="label">배우</td>
+								<td class="value">라이언 고슬링, 레이첼 맥아담스</td>
+							</tr>
+							<tr>
+								<td class="label">평점</td>
+								<td class="value">4.8 / 5.0</td>
+							</tr>
+							<tr>
+								<td class="label">러닝타임</td>
+								<td class="value">124분</td>
+							</tr>
+						</table>
+						
+						<p class="story-heading">줄거리</p>
+						<p class="story-text">
+							1940년대 미국, 부유한 상류층 집안의 딸 앨리와 자유로운 영혼을 가진 가난한 청년 노아는 뜨거운 사랑에 빠진다. 앨리 부모님의 반대로 헤어지게 된 두 사람은 7년 후 운명적으로 다시 만나게 되지만, 이미 앨리에게는 약혼자가 있는데...
+						</p>
+					</div>
+				</div>
+
+				<div id="good" class="movie-pick-item">
+					<div class="poster-container">
+						<img src="00 source/03 picks/picks02.png" alt="굿 윌 헌팅 포스터">
+					</div>
+					<div class="detail-area">
+						<h2>GOOD WILL HUNTING <span class="year">1997</span></h2>
+						
+						<table class="meta-info">
+							<tr>
+								<td class="label">감독</td>
+								<td class="value">가스 반 산트</td>
+							</tr>
+							<tr>
+								<td class="label">배우</td>
+								<td class="value">맷 데이먼, 로빈 윌리엄스, 벤 애플렉</td>
+							</tr>
+							<tr>
+								<td class="label">평점</td>
+								<td class="value">4.5 / 5.0</td>
+							</tr>
+							<tr>
+								<td class="label">러닝타임</td>
+								<td class="value">126분</td>
+							</tr>
+						</table>
+						
+						<p class="story-heading">줄거리</p>
+						<p class="story-text">
+							천재적인 두뇌를 가졌지만 불우한 환경으로 인해 상처와 방황을 겪는 윌 헌팅(맷 데이먼)은 폭행 사건으로 교도소 수감 위기에 처한다. MIT 교수 제럴드 램보(스텔란 스카스가드)는 윌의 재능을 알아보고 심리학 교수 숀 맥과이어(로빈 윌리엄스)에게 치료를 부탁하게 되는데...
+						</p>
+					</div>
+				</div>
+
+				<div id="dog" class="movie-pick-item">
+					<div class="poster-container">
+						<img src="00 source/03 picks/picks03.png" alt="개들의 섬 포스터">
+					</div>
+					<div class="detail-area">
+						<h2>ISLE OF DOGS <span class="year">2018</span></h2>
+						
+						<table class="meta-info">
+							<tr>
+								<td class="label">감독</td>
+								<td class="value">웨스 앤더슨</td>
+							</tr>
+							<tr>
+								<td class="label">배우</td>
+								<td class="value">브라이언 크랜스톤, 코유 랜킨, 에드워드 노튼, 빌 머레이 외 다수</td>
+							</tr>
+							<tr>
+								<td class="label">평점</td>
+								<td class="value">5.0 / 5.0</td>
+							</tr>
+							<tr>
+								<td class="label">러닝타임</td>
+								<td class="value">101분</td>
+							</tr>
+						</table>
+						
+						<p class="story-heading">줄거리</p>
+						<p class="story-text">
+							미래 도시 메가사키. 개 독감이 창궐하자 모든 개들을 쓰레기 섬으로 추방한다. 웨스 앤더슨 특유의 미장센과 스톱 모션 애니메이션 기법이 돋보이는 작품. 순수한 소년과 충성심 강한 개들의 여정을 통해 인간과 동물의 관계, 그리고 사회 비판적 메시지를 담고 있다.
+						</p>
+					</div>
+				</div>
+
+				<div id="triangle" class="movie-pick-item">
+					<div class="poster-container">
+						<img src="00 source/03 picks/picks04.png" alt="슬픔의 삼각형 포스터">
+					</div>
+					<div class="detail-area">
+						<h2>TRIANGLE OF SADNESS <span class="year">2022</span></h2>
+						
+						<table class="meta-info">
+							<tr>
+								<td class="label">감독</td>
+								<td class="value">루벤 외스틀룬드</td>
+							</tr>
+							<tr>
+								<td class="label">배우</td>
+								<td class="value">해리스 디킨슨, 비비 웨스트우드</td>
+							</tr>
+							<tr>
+								<td class="label">평점</td>
+								<td class="value">3.6 / 5.0</td>
+							</tr>
+							<tr>
+								<td class="label">러닝타임</td>
+								<td class="value">142분</td>
+							</tr>
+						</table>
+						
+						<p class="story-heading">줄거리</p>
+						<p class="story-text">
+							인플루언서 커플이 초호화 크루즈 여행에 초대된다. 배에는 러시아 사업가, 무기 상인, 마르크스주의자 선장 등 부자 승객들이 탑승해 있다. 호화로운 만찬이 이어지던 중 폭풍우를 만나 난파되고, 생존자들은 무인도에 표류하며 계급 사회의 역전과 혼란을 경험한다.
+						</p>
+					</div>
+				</div>
+
+
+
+			</div>
+			
+		</main>
+
+		<!-- Footer 영역 -->
+		<footer class="main-footer">
+		    <div class="footer-content">
+		        <div class="footer-left">
+		            <div class="footer-logo-container">
+		                <img src="00 source/00 common/logo_w.png" alt="FILMLOG Small Logo" class="footer-logo-small">
+		                <img src="00 source/00 common/logo_w2.png" alt="FILMLOG Full Logo" class="footer-logo-full">
+		            </div>
+		            
+		            <p class="footer-desc">
+		                A personal archive of the films I watched and the tastes I discovered.
+		            </p>
+		        </div>
+		        <p class="footer-copy">
+		            © 2025 FILMLOG All rights reserved.
+		        </p>
+		    </div>
+		</footer>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				const hamburgerBtn = document.getElementById('hamburger-btn');
+				const closeBtn = document.getElementById('close-btn');
+				const mobileMenu = document.getElementById('mobile-menu-overlay');
+				const body = document.body;
+
+				hamburgerBtn.addEventListener('click', function() {
+					mobileMenu.classList.add('is-active');
+					body.classList.add('no-scroll');
+					body.classList.add('menu-is-open');
+				});
+
+				closeBtn.addEventListener('click', function() {
+					mobileMenu.classList.remove('is-active');
+					body.classList.remove('no-scroll');
+					body.classList.remove('menu-is-open');
+				});
+				
+				mobileMenu.querySelectorAll('a').forEach(link => {
+					link.addEventListener('click', function() {
+						mobileMenu.classList.remove('is-active');
+						body.classList.remove('no-scroll');
+						body.classList.remove('menu-is-open');
+					});
+				});
+			});
+		</script>
+
+	</body>
+</html>
